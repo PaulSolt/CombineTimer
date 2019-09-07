@@ -75,7 +75,7 @@ struct TimerView: View {
         //startStop()
     }
     
-    // TODO: Fix time offset?
+    // TODO: Fix time formatting (timezone?)
     var dateFormatter: DateFormatter = {
         var formatter = DateFormatter()
         formatter.dateStyle = .none
@@ -104,13 +104,15 @@ struct TimerView: View {
             .autoconnect()
             .compactMap { time in
                 self.startDate.map { startDate in
-                    self.timeFormatter.string(from: time.timeIntervalSince(startDate)) ?? self.zeroTime
+                    self.timeFormatter.string(from:
+                        time.timeIntervalSince(startDate)) ?? self.zeroTime
                 }
         }
         .sink { (time) in
             self.timeString = time
         }
-//            .assign(to: \.timeString, on: self)
+        // Can use the sink or assign directly to a String property
+        //.assign(to: \.timeString, on: self)
     }
 }
 
