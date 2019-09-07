@@ -23,43 +23,38 @@ import Combine
 
 
 struct ContentView: View {
-    @State private var text: String = "Swift"
-    
-    var timer: AnyCancellable? = nil
-    
-    mutating func buttonPressed() {
-        
-    }
+    @State private var timeString: String = "00:00.00"
+    @State private var timer: AnyCancellable? = nil
+    @State private var startDate: Date? = nil
+    @State private var isActive: Bool = false
     
     var body: some View {
         VStack {
-            Text(text)
-            Button(action: {
-                
-                _ = Timer.publish(every: 0.2, on: .main, in: .default)
-                    .sink {
-                        print($0)
-                }
-//                    .combineLatest("Hello world!".publisher)
-//                    .map { _, character in
-//                        print(character)
-//                        return String(character)
-//                }.assign(to: \.text, on: self)
-                
-                
-                _ = "Hello world!"
-                    .publisher
-                    .map { String($0) }
-                    .sink(receiveValue: { letter in
-                        print(letter)
-                    })
-                        
-//                    .assign(to: \.text, on: self)
+            Text(timeString)
+                .font(Font.system(size: 80, weight: .semibold, design: .default)
+                    .monospacedDigit()
 
-            }, label: {
-                Text("Push Me")
-            })
+                    
+            )
+                
+            startStopButton
         }.onAppear(perform: viewDidAppear)
+    }
+    
+    var startStopButton: some View {
+        Button(action: startStop, label: {
+            Text(isActive ? "Stop" : "Start")
+                .font(.title)
+        })
+    }
+    
+    func startStop() {
+        if isActive {
+            timer?.cancel()
+        } else {
+            timer = createTimer()
+        }
+        isActive.toggle()
     }
     
     func viewDidAppear() {
@@ -73,15 +68,88 @@ struct ContentView: View {
             }) { (word) in
                 print(word) // called for each element in the array
         }
-            
-            // Does not match type! (Character != String)
-            //        _ = "Hello world!"
-            //            .publisher
-            ////            .delay(for: 1000, scheduler: RunLoop.main)
-            ////            .debounce(for: 1000, scheduler: RunLoop.main)
-            //            .map({ String($0) })
-            
         
+        //        timer = Timer.publish(every: 0.2, on: .main, in: .default)
+        //            .autoconnect()
+        //            .combineLatest("Letter publisher".publisher.map { String($0) })
+        //            .sink {
+        //                print($0)
+        //        }
+        
+        
+        //        timer = Timer.publish(every: 0.2, on: .main, in: .default)
+        //            .autoconnect()
+        //            .sink {
+        //                print($0)
+        //            }
+        
+        //        timer = Timer.publish(every: 0.2, on: .main, in: .default)
+        //            .autoconnect()
+        //            .sink(receiveCompletion: {
+        //                print("FINISHED: \($0)")
+        //            }, receiveValue: { (date) in
+        //                print(date)
+        //            })
+        
+//        timer = createTimer()
+        
+    }
+    
+    // TODO: Fix time offset?
+    var dateFormatter: DateFormatter = {
+        var formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .long
+        formatter.dateFormat = "mm:ss.SS"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter
+    }()
+    
+    var timeFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .positional
+        formatter.allowsFractionalUnits = true
+        formatter.zeroFormattingBehavior = .pad
+        formatter.allowedUnits = [.minute, .second]
+        return formatter
+    }()
+    
+    let zeroTime = "00:00"
+    
+    func updateTime(date: Date) {
+        if let startDate = startDate {
+            timeString = timeFormatter.string(from: date.timeIntervalSince(startDate)) ?? zeroTime
+        }
+    }
+    
+    func createTimer() -> AnyCancellable {
+        startDate = Date()
+        
+        return Timer.publish(every: 0.01, on: .main, in: .default)
+            .autoconnect()
+            //            .map(timeFormatter.string(from: 3))
+            .compactMap { time in
+                self.startDate.map { startDate in //startDate in // _ in -> String in
+                    self.timeFormatter.string(from: time.timeIntervalSince(startDate)) ?? "00:00"
+//                    self.dateFormatter.string(from: time)
+                }
+                //                if let startDate = self.startDate {
+                //
+                //                    self.timeFormatter.string(from: $0.timeIntervalSince(startDate)) ?? "00:00"
+                //                }
+        }
+        .sink(receiveCompletion: {
+            print("FINISHED: \($0)")
+            self.timeString = "Finished!"
+        }, receiveValue: { (time) in
+            //                print(date)
+            //                print(self.timer.unsafelyUnwrapped.hashValue)
+            
+            
+            self.timeString = time
+            //                self.timeString = self.dateFormatter.string(from: date)
+//            print(self.timeString)
+        })
     }
 }
 
