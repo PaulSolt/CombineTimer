@@ -23,7 +23,7 @@ import Combine
 
 
 struct ContentView: View {
-    @State private var timeString: String = "00:00.00"
+    @State private var timeString: String = "00:00"
     @State private var timer: AnyCancellable? = nil
     @State private var startDate: Date? = nil
     @State private var isActive: Bool = false
@@ -68,31 +68,14 @@ struct ContentView: View {
             }) { (word) in
                 print(word) // called for each element in the array
         }
-        
-        //        timer = Timer.publish(every: 0.2, on: .main, in: .default)
-        //            .autoconnect()
-        //            .combineLatest("Letter publisher".publisher.map { String($0) })
-        //            .sink {
-        //                print($0)
-        //        }
-        
-        
+                
         //        timer = Timer.publish(every: 0.2, on: .main, in: .default)
         //            .autoconnect()
         //            .sink {
         //                print($0)
         //            }
         
-        //        timer = Timer.publish(every: 0.2, on: .main, in: .default)
-        //            .autoconnect()
-        //            .sink(receiveCompletion: {
-        //                print("FINISHED: \($0)")
-        //            }, receiveValue: { (date) in
-        //                print(date)
-        //            })
-        
-//        timer = createTimer()
-        
+        startStop()
     }
     
     // TODO: Fix time offset?
@@ -116,11 +99,11 @@ struct ContentView: View {
     
     let zeroTime = "00:00"
     
-    func updateTime(date: Date) {
-        if let startDate = startDate {
-            timeString = timeFormatter.string(from: date.timeIntervalSince(startDate)) ?? zeroTime
-        }
-    }
+//    func updateTime(date: Date) {
+//        if let startDate = startDate {
+//            timeString = timeFormatter.string(from: date.timeIntervalSince(startDate)) ?? zeroTime
+//        }
+//    }
     
     func createTimer() -> AnyCancellable {
         startDate = Date()
@@ -129,27 +112,18 @@ struct ContentView: View {
             .autoconnect()
             //            .map(timeFormatter.string(from: 3))
             .compactMap { time in
+//                if let startDate = self.startDate {
+//                    return self.timeFormatter.string(from: time.timeIntervalSince(startDate)) ?? "00:00"
+//                }
                 self.startDate.map { startDate in //startDate in // _ in -> String in
                     self.timeFormatter.string(from: time.timeIntervalSince(startDate)) ?? "00:00"
 //                    self.dateFormatter.string(from: time)
                 }
-                //                if let startDate = self.startDate {
-                //
-                //                    self.timeFormatter.string(from: $0.timeIntervalSince(startDate)) ?? "00:00"
-                //                }
         }
-        .sink(receiveCompletion: {
-            print("FINISHED: \($0)")
-            self.timeString = "Finished!"
-        }, receiveValue: { (time) in
-            //                print(date)
-            //                print(self.timer.unsafelyUnwrapped.hashValue)
-            
-            
+        .sink { (time) in
             self.timeString = time
-            //                self.timeString = self.dateFormatter.string(from: date)
-//            print(self.timeString)
-        })
+        }
+//            .assign(to: \.timeString, on: self)
     }
 }
 
