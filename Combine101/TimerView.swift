@@ -10,7 +10,9 @@ import SwiftUI
 import Combine
 
 struct TimerView: View {
-    @State private var timeString: String = "00:00"
+    static private let zeroTime = "00:00"
+
+    @State private var timeString: String = TimerView.zeroTime
     @State private var timer: AnyCancellable? = nil
     @State private var startDate: Date? = nil
     @State private var isActive: Bool = false
@@ -81,9 +83,6 @@ struct TimerView: View {
         return formatter
     }()
     
-    private let zeroTime = "00:00"
-
-    
     func createTimer() -> AnyCancellable {
         startDate = Date()
         
@@ -92,7 +91,7 @@ struct TimerView: View {
             .compactMap { time in
                 self.startDate.map { startDate in
                     self.timeFormatter.string(from:
-                        time.timeIntervalSince(startDate)) ?? self.zeroTime
+                        time.timeIntervalSince(startDate)) ?? TimerView.zeroTime
                 }
         }
         .sink { (time) in
