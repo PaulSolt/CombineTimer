@@ -9,19 +9,6 @@
 import SwiftUI
 import Combine
 
-//override func viewDidLoad() {
-//    super.viewDidLoad()
-//
-//    print("Don't forget to call super!")
-//}
-//
-//Text("Hello World")
-//    .onAppear {
-//    print("Only my code here")
-//}
-
-
-
 struct TimerView: View {
     @State private var timeString: String = "00:00"
     @State private var timer: AnyCancellable? = nil
