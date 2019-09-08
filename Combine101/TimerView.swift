@@ -11,12 +11,12 @@ import Combine
 
 struct TimerView: View {
     static private let zeroTime = "00:00"
-
+    
     @State private var timeString: String = TimerView.zeroTime
-    @State private var timer: AnyCancellable? = nil
     @State private var startDate: Date? = nil
     @State private var isActive: Bool = false
-    
+    @State private var timer: AnyCancellable? = nil
+
     var body: some View {
         VStack {
             Text(timeString)
@@ -44,35 +44,29 @@ struct TimerView: View {
     }
     
     func viewDidAppear() {
-        print("Hello World!")
-        // Experiment here
         
-        _ = ["Hello", "World"]
-            .publisher
-            .sink(receiveCompletion: { (status) in
-                print("status: \(status)")  // called when finished "iterating" array
-            }) { (word) in
-                print(word) // called for each element in the array
-            }
-                
-        //timer = Timer.publish(every: 0.2, on: .main, in: .default)
-        //    .autoconnect()
-        //    .sink {
-        //        print($0)
-        //    }
-        
-        //startStop()
+        // Create a timer to output to console
+        timer = Timer.publish(every: 0.2, on: .main, in: .default)
+            .autoconnect()
+            .sink {
+                print($0)
+        }
     }
     
-    // TODO: Fix time formatting (timezone?)
-    var dateFormatter: DateFormatter = {
-        var formatter = DateFormatter()
-        formatter.dateStyle = .none
-        formatter.timeStyle = .long
-        formatter.dateFormat = "mm:ss.SS"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        return formatter
-    }()
+    func createTimer() -> AnyCancellable {
+        startDate = Date()
+        
+        return Timer.publish(every: 0.01, on: .main, in: .default)
+            .autoconnect()
+            .sink { (now) in
+                if let startDate = self.startDate,
+                    let time = self.timeFormatter.string(from: now.timeIntervalSince(startDate)) {
+                    self.timeString = time
+                }
+        }
+        // Can use the sink or assign directly to a String property
+        //.assign(to: \.timeString, on: self)
+    }
     
     var timeFormatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
@@ -82,24 +76,6 @@ struct TimerView: View {
         formatter.allowedUnits = [.minute, .second]
         return formatter
     }()
-    
-    func createTimer() -> AnyCancellable {
-        startDate = Date()
-        
-        return Timer.publish(every: 0.01, on: .main, in: .default)
-            .autoconnect()
-            .compactMap { time in
-                self.startDate.map { startDate in
-                    self.timeFormatter.string(from:
-                        time.timeIntervalSince(startDate)) ?? TimerView.zeroTime
-                }
-        }
-        .sink { (time) in
-            self.timeString = time
-        }
-        // Can use the sink or assign directly to a String property
-        //.assign(to: \.timeString, on: self)
-    }
 }
 
 struct TimerView_Previews: PreviewProvider {
