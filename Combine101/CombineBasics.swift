@@ -61,21 +61,6 @@ func viewDidAppear() {
         }
 }
 
-func switchStatus() {
-    
-    _ =  Subscribers.Sink<String, Never>.init(receiveCompletion: { status in
-        switch status {
-        case .failure:
-            print("Failed")
-        case .finished:
-            print("Finished")
-        }
-    }, receiveValue: { (value) in
-        
-    })
-}
-
-
 struct CombineBasics_Previews: PreviewProvider {
     static var previews: some View {
         CombineBasics()

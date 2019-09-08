@@ -16,7 +16,7 @@ struct TimerView: View {
     @State private var startDate: Date? = nil
     @State private var isActive: Bool = false
     @State private var timer: AnyCancellable? = nil
-
+    
     var body: some View {
         VStack {
             Text(timeString)
@@ -63,9 +63,20 @@ struct TimerView: View {
                     let time = self.timeFormatter.string(from: now.timeIntervalSince(startDate)) {
                     self.timeString = time
                 }
-        }
+            }
+        
+//        return Timer.publish(every: 0.01, on: .main, in: .default)
+//            .autoconnect()
+//            .compactMap { (now) in
+//                if let startDate = self.startDate,
+//                    let time = self.timeFormatter.string(from: now.timeIntervalSince(startDate)) {
+//                    return time
+//                }
+//                return nil
+//            }
+//            .assign(to: \.timeString, on: self)
         // Can use the sink or assign directly to a String property
-        //.assign(to: \.timeString, on: self)
+        
     }
     
     var timeFormatter: DateComponentsFormatter = {
