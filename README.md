@@ -180,8 +180,21 @@
 
 
 
-## @ObservedObject Demo
+# URLS
 
+* Github (UIViewRepresentable + Bindable): 
+* [CombineTimer - @State and Timer](https://github.com/PaulSolt/CombineTimer) 
+* [App Review with Combine](https://github.com/PaulSolt/TopRatedReviewsCombine) 
+* 
+
+
+
+## SwiftUI Demo
+
+Goal: We need to create a way to display a Review
+
+
+## @ObservedObject Demo
 
 1.  Add tags to your reference type
 
@@ -265,3 +278,63 @@
 	            .environmentObject(store)
 	
 	```
+
+
+# Extra Github Demo
+
+1. Binding 
+2. UIViewRepresentable
+
+```swift
+import Foundation
+import SwiftUI
+import Combine
+
+typealias SearchCompletion = () -> Void
+
+struct SearchBar: UIViewRepresentable {
+
+    @Binding var text: String
+    var completion: SearchCompletion? = nil
+    
+    init(text: Binding<String>, onChange completion: SearchCompletion? = nil) {
+        _text = text
+        self.completion = completion
+    }
+    
+    // The coordinator allows us to listen for updates to our searchbar
+    class SearchBarCoordinator: NSObject, UISearchBarDelegate {
+        @Binding var text: String
+        var completion: SearchCompletion?
+        
+        init(text: Binding<String>, onChange completion: SearchCompletion? = nil) {
+            _text = text
+            self.completion = completion
+        }
+        
+        func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+            text = searchText
+            completion?()
+        }
+        
+        func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+            completion?()
+        }
+    }
+    
+    func makeCoordinator() -> SearchBarCoordinator {
+        return SearchBarCoordinator(text: $text, onChange: completion)
+    }
+    
+    func makeUIView(context: UIViewRepresentableContext<SearchBar>) -> UISearchBar {
+        let searchBar = UISearchBar()
+        searchBar.delegate = context.coordinator
+        return searchBar
+    }
+    
+    func updateUIView(_ searchBar: UISearchBar, context: UIViewRepresentableContext<SearchBar>) {
+        searchBar.text = text
+    }
+}
+```
+
